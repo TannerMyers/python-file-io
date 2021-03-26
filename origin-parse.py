@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+import sys
+import re
+
 print('Opening origin.txt')
 with open('origin.txt', 'r') as in_stream:
     print('Opening origin-output.txt')
@@ -13,3 +16,6 @@ with open('origin.txt', 'r') as in_stream:
 print("Done!")
 print('origin.txt is closed?', in_stream.closed)
 print('origin-output.txt is closed?', out_stream.closed)
+
+if __name__ == '__main__':
+    target_pattern = re.compile(r'(^\w*herit\w*$)', re.IGNORECASE)
