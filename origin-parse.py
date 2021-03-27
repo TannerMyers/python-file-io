@@ -4,12 +4,36 @@ import sys
 import re
 
 def find_mention(in_stream,
+        target_regex,
         start_regex = None,
         stop_regex = None):
     """
-
+    -------------------------------------------------------------------------
+    Parameters
+    -------------------------------------------------------------------------
+    in_stream : A file object
+        Input 
+    target_regex : A regular expression object
+        Search item in `in_stream` 
+    start_regex : A regular expression object
+        Where the targeted regular expression object can begin to be searched for
+        in `in_stream`
+    stop_regex :
+        Where the targeted regular expression object can no longer be searched for
+        in `in_stream`
     """
-
+    search_has_started = False
+    if not start_regex:
+        search_has_started = True
+    for line_index, line in enumerate(in_stream):
+        if stop_regex and stop_regex.match(line):
+            break
+        if start_regex and (not search_has_started):
+            if start_regex.match(line):
+                search_has_started = True
+            continue
+        for match_object in target_regex.finditer(line):
+            yield line_index, match_object 
 
 def record_occurrences(in_stream, out_stream,
         target_regex,
@@ -47,6 +71,19 @@ def record_occurrences(in_stream, out_stream,
 
 
 if __name__ == '__main__':
-    target_pattern = re.compile(r'(^\w*herit\w*$)', re.IGNORECASE)
-    start.pattern = re.compile(r'^\*\*START.*$')
-    stop.pattern = re.compile(r'^END$')
+    target_pattern = re.compile(r'(^\w*herit\w*)', re.IGNORECASE)
+    start_pattern = re.compile(r'^\*\*\*\s*START.*$')
+    stop_pattern = re.compile(r'^\*\*\*\s*END.*$')
+    in_path = 'origin.txt'
+    out_path = 'origin-output.txt'
+    with open(in_path, 'r') as in_stream:
+        with open(out_path, 'w') as out_stream:
+            occurrences = record_occurrences(in_stream=in_stream,
+            out_stream=out_stream,
+            target_regex=target_pattern,
+            start_regex=start_pattern,
+            stop_regex=stop_pattern)
+    message = "Chucky D referred to heritability {0} times!".format(
+            occurrences)
+    print(message)
+    
